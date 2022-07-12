@@ -8,15 +8,19 @@ import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ModBlock {
 
 
-    private static Boolean never(BlockState state, BlockView world, BlockPos pos, EntityType<?> type) {
+    public static Boolean never(BlockState state, BlockView world, BlockPos pos, EntityType<?> type) {
         return false;
     }
     private static boolean never(BlockState blockState, BlockView blockView, BlockPos blockPos) { return false; }
@@ -28,19 +32,30 @@ public class ModBlock {
     public static final Block INV_OBSIDIAN = new InvisibleBlock(AbstractBlock.Settings.copy(Blocks.OBSIDIAN).noCollision().nonOpaque().allowsSpawning(ModBlock::never).suffocates(ModBlock::never).blockVision(ModBlock::never).ticksRandomly(), InvisibleBlock.color(0, 0, 0));
     public static final Block INV_CRYING_OBSIDIAN = new InvisibleBlock(AbstractBlock.Settings.copy(Blocks.CRYING_OBSIDIAN).noCollision().nonOpaque().allowsSpawning(ModBlock::never).suffocates(ModBlock::never).blockVision(ModBlock::never).ticksRandomly(), InvisibleBlock.color(0, 0, 0));
 
-    public static void blockInit(){
-        registerBlockItem("invisible_grass_block", INV_GRASS_BLOCK, InvisibleBlocks.INVBLOCKS_GROUP);
-        registerBlockItem("invisible_dirt", INV_DIRT, InvisibleBlocks.INVBLOCKS_GROUP);
-        registerBlockItem("invisible_stone", INV_STONE, InvisibleBlocks.INVBLOCKS_GROUP);
-        registerBlockItem("invisible_deepslate", INV_DEEPSLATE, InvisibleBlocks.INVBLOCKS_GROUP);
-        registerBlockItem("invisible_obsidian", INV_OBSIDIAN, InvisibleBlocks.INVBLOCKS_GROUP);
-        registerBlockItem("invisible_crying_obsidian", INV_CRYING_OBSIDIAN, InvisibleBlocks.INVBLOCKS_GROUP);
+    private static Set<Identifier> ids = new HashSet<>(Registry.BLOCK.getIds());
 
+    public static void blockInit(){
+        //registerBlockItem("invisible_grass_block", INV_GRASS_BLOCK, InvisibleBlocks.INVBLOCKS_GROUP);
+        //registerBlockItem("invisible_dirt", INV_DIRT, InvisibleBlocks.INVBLOCKS_GROUP);
+        //registerBlockItem("invisible_stone", INV_STONE, InvisibleBlocks.INVBLOCKS_GROUP);
+        //registerBlockItem("invisible_deepslate", INV_DEEPSLATE, InvisibleBlocks.INVBLOCKS_GROUP);
+        //registerBlockItem("invisible_obsidian", INV_OBSIDIAN, InvisibleBlocks.INVBLOCKS_GROUP);
+        //registerBlockItem("invisible_crying_obsidian", INV_CRYING_OBSIDIAN, InvisibleBlocks.INVBLOCKS_GROUP);
+        for (Identifier id: ids) {
+            if(id != Registry.BLOCK.getId(Blocks.AIR)){
+                System.out.println("registering invisible_" + id.getPath() + "...");
+                registerBlockItem("invisible_" + id.getPath(), new InvisibleBlock(
+                        AbstractBlock.Settings.copy(Blocks.BEDROCK).noCollision().nonOpaque().allowsSpawning(ModBlock::never).suffocates(ModBlock::never).blockVision(ModBlock::never).ticksRandomly(), InvisibleBlock.color(0, 0, 0)
+                ), ItemGroup.BUILDING_BLOCKS);
+            }
+;
+        }
     }
 
     public static void registerBlockItem(String name, Block block, ItemGroup group){
         Registry.register(Registry.BLOCK, new Identifier(InvisibleBlocks.MODID, name), block);
         Registry.register(Registry.ITEM, new Identifier(InvisibleBlocks.MODID, name), new BlockItem(block, new FabricItemSettings().group(group)));
     }
-    
+
+
 }
